@@ -25,7 +25,7 @@ public class ProductController
 	public ProductController(ProductService productService)
 	{
 		this.productService = productService;
-		Bandwidth limitRate = Bandwidth.classic(3, Refill.greedy(20, Duration.ofMinutes(1))); // limit 30 in 1 min
+		Bandwidth limitRate = Bandwidth.classic(30, Refill.greedy(20, Duration.ofMinutes(1))); // limit 30 in 1 min
 		this.bucket = Bucket.builder().addLimit(limitRate).build();
 	}
 
