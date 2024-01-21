@@ -29,11 +29,11 @@ public class ProductService
 
 	public Response addProduct(AddProductDto productDto)
 	{
+		Response response = new Response();
 		ProductEntity productEntity = new ProductEntity();
 		BeanUtils.copyProperties(productDto, productEntity);
 		ProductEntity product = productRepository.save(productEntity);
 
-		Response response = new Response();
 		response.setResult(product).setStatus("Success").setStatusCode(200);
 		return response;
 	}
@@ -54,7 +54,7 @@ public class ProductService
 		productRepository.save(product);
 
 		ProductAuditLogEntity productAuditLogEntity = new ProductAuditLogEntity();
-		productAuditLogEntity.setProduct(product).setActionType(UpdateActionEnum.UPDATE_DETAILS.toString()).setCreatedAt(LocalDateTime.now());
+		productAuditLogEntity.setProductId(productId).setActionType(UpdateActionEnum.UPDATE_DETAILS.toString()).setCreatedAt(LocalDateTime.now());
 		productAuditLogRepository.save(productAuditLogEntity);
 
 		Response response = new Response();
@@ -76,19 +76,19 @@ public class ProductService
 		String action = this.validateUpdateStock(productDto);
 		switch(action)
 		{
-		case "update" -> product.setStockQuantity(product.getStockQuantity());
+		case "update" -> product.setStockQuantity(productDto.getStockQuantity());
 		case "add" -> product.setStockQuantity(stockQuantity + productDto.getItemsAdded());
 		case "remove" -> product.setStockQuantity(stockQuantity - productDto.getItemsRemoved());
 		}
 
+		productRepository.save(product);
+
 		ProductAuditLogEntity productAuditLogEntity = new ProductAuditLogEntity();
-		productAuditLogEntity.setProduct(product)
-							 .setActionType(UpdateActionEnum.UPDATE_DETAILS.toString())
+		productAuditLogEntity.setProductId(productId)
+							 .setActionType(UpdateActionEnum.UPDATE_STOCK.toString())
 							 .setActionDetails(action)
 							 .setCreatedAt(LocalDateTime.now());
 		productAuditLogRepository.save(productAuditLogEntity);
-
-		productRepository.save(product);
 
 		Response response = new Response();
 		response.setResult(product).setStatus("Success").setStatusCode(200);
@@ -123,11 +123,13 @@ public class ProductService
 
 		if(updateStockDto.getItemsAdded() != null)
 		{
+			providedFieldsCount++;
 			action = "add";
 		}
 
 		if(updateStockDto.getItemsRemoved() != null)
 		{
+			providedFieldsCount++;
 			action = "remove";
 		}
 
