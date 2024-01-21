@@ -20,9 +20,8 @@ public class ProductAuditLogEntity
 	@Column(name = "id")
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "product_id")
-	private ProductEntity product;
+	@Column(name = "product_id")
+	private Long productId;
 
 	@Column(name = "action_type")
 	private String actionType;
